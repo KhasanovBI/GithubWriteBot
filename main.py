@@ -7,16 +7,8 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 from git import Repo, GitCommandError
 
-from settings import LOGIN, PASSWORD, REPOSITORY_PATH, REPOSITORY_URL, FILE_TEMPLATE, COMMIT_MESSAGE
-
-
-def scale_image(image, new_width=100):
-    (original_width, original_height) = image.size
-    aspect_ratio = original_height / float(original_width)
-    new_height = int(aspect_ratio * new_width)
-    new_image = image.resize((new_width, new_height))
-    return new_image
-
+from credentials import LOGIN, PASSWORD
+from github_pixel_bot.settings import REPOSITORY_PATH, REPOSITORY_URL, FILE_TEMPLATE, COMMIT_MESSAGE
 
 ASCII_CHARS = [' ', '%', 'S', '*', '@']
 
@@ -27,17 +19,17 @@ def map_pixels_to_ascii_chars(image, range_width=52):
     return ''.join(pixels_to_chars)
 
 
-def convert_image_to_ascii(new_width=51):
-    width = 5100
-    height = 700
+def convert_image_to_ascii(message, new_width=51):
+    width = 51
+    height = 7
     image = Image.new('RGBA', (width, height))
     d = ImageDraw.Draw(image)
 
-    fnt = ImageFont.truetype('fonts/Ubuntu-R.ttf', 900)
-    d.text((0, -200), 'Hello World', font=fnt, fill=(255, 255, 255, 128))
+    fnt = ImageFont.truetype('fonts/pixel_font.ttf', 7)
+    d.text((0, -1), message, font=fnt, fill=(255, 255, 255, 128))
     # image.show()
     # image = scale_image(image, new_width)
-    image.thumbnail((51, 7), Image.NEAREST)
+    # image.thumbnail((51, 7), Image.NEAREST)
     # image.show()
 
     image = image.convert('L')
@@ -71,7 +63,8 @@ def convert_ascii_to_datetime_list(ascii):
 
 
 def main():
-    ascii = convert_image_to_ascii()
+    message = dt.datetime.now().strftime("%H : %M : %S")
+    ascii = convert_image_to_ascii(message=message)
     print_ascii(ascii)
     datetimes = convert_ascii_to_datetime_list(ascii)
     try:
